@@ -1,0 +1,37 @@
+services:
+  php:
+    container_name: api_motorbike_php
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    volumes:
+      - .:/var/www/html
+      - ./docker/php/conf.d:/usr/local/etc/php/conf.d
+    depends_on:
+      - mysql
+      
+  nginx:
+    container_name: api_motorbike_nginx
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    links:
+      - php:phpfpm
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8081:80"
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_motorbike
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: api_motorbike
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data: {}
